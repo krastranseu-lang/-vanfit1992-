@@ -7,8 +7,8 @@ function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
-function sane(n: unknown): number {
-  const v = typeof n === "number" && Number.isFinite(n) ? n : 0;
+function sane(n: number): number {
+  const v = Number.isFinite(n) ? n : 0;
   return v > 0 ? v : 0;
 }
 
@@ -42,4 +42,3 @@ export function formatLDM(value: number): string {
 }
 
 export default computeLDM;
-
