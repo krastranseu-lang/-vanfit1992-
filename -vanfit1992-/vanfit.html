@@ -112,6 +112,22 @@
         --soft: #f0f3fa;
       }
 
+      /* Sepia / Reading mode (ciepły, żółtawy) */
+      .vp[data-theme="sepia"] {
+        --bg: #f6f1e3;       /* kremowe tło */
+        --ink: #2b2110;      /* brązowy tusz */
+        --muted: #6b5b45;
+        --accent: #c36a00;   /* przygaszony pomarańcz */
+        --accent-ink: #fff;
+        --ok: #0f9b5f;
+        --bad: #c0392b;
+        --line: #d9ccb1;     /* delikatne linie */
+        --card: #fffaf0;     /* jaśniejsze karty */
+        --soft: #f2eadb;     /* miękki panel */
+        --gridMinor: rgba(43, 33, 16, 0.08); /* cieplejsza siatka */
+        --gridMajor: rgba(43, 33, 16, 0.16);
+      }
+
       /* ===================== BASE ===================== */
       .vp * {
         box-sizing: border-box;
@@ -414,6 +430,7 @@
       .vp .veh-inline label { color: var(--muted); font-size: .9rem; }
       .vp .veh-inline input.small { width: 84px; padding: 6px 8px; border-radius: 8px; }
       .vp[data-theme="light"] .veh-inline input.small { background:#fff; }
+      .vp[data-theme="sepia"] .veh-inline input.small { background:#fffaf0; color:#2b2110; }
       /* Expander (nowoczesne rozwijanie) */
       .vp .expander { border:1px solid var(--line); border-radius:12px; background:var(--soft); margin:8px 0; overflow:hidden; }
       .vp .expander-head { display:flex; align-items:center; gap:10px; padding:8px 10px; cursor:pointer; user-select:none; }
@@ -450,6 +467,18 @@
         border-radius: 10px;
         padding: 8px;
       }
+      .vp[data-theme="light"] select,
+      .vp[data-theme="light"] input[type="number"],
+      .vp[data-theme="light"] input[type="text"],
+      .vp[data-theme="light"] input[type="date"],
+      .vp[data-theme="light"] input[type="time"],
+      .vp[data-theme="light"] textarea { background:#fff; color:#141a2a; }
+      .vp[data-theme="sepia"] select,
+      .vp[data-theme="sepia"] input[type="number"],
+      .vp[data-theme="sepia"] input[type="text"],
+      .vp[data-theme="sepia"] input[type="date"],
+      .vp[data-theme="sepia"] input[type="time"],
+      .vp[data-theme="sepia"] textarea { background:#fffaf0; color:#2b2110; }
       /* Select "Pojazd" – szerokość dopasowana do treści */
       .vp #vehSel { width:auto; min-width: 160px; max-width: 70vw; }
       /* Własny dropdown dla Pojazd – select jako hotspot */
@@ -580,16 +609,12 @@
         background: radial-gradient(1200px 600px at 50% 30%, rgba(255,255,255,0.05), transparent 60%), var(--soft);
         border-radius: 10px;
       }
-      .vp .board {
-        outline: 1px solid #2b3958;
-      }
-      .vp .gridline {
-        stroke: #26334e;
-        stroke-width: 0.2;
-      }
-      .vp[data-theme="light"] .gridline {
-        stroke: #e8eef9;
-      }
+      .vp .board { outline: 1px solid #2b3958; }
+      .vp[data-theme="light"] .board { outline-color: #d5dcef; }
+      .vp[data-theme="sepia"] .board { outline-color: #d9ccb1; }
+      .vp .gridline { stroke: #26334e; stroke-width: 0.2; }
+      .vp[data-theme="light"] .gridline { stroke: #e8eef9; }
+      .vp[data-theme="sepia"] .gridline { stroke: #d9ccb1; }
       .vp .hull {
         fill: #0e1526;
         stroke: #3a4d77;
@@ -620,9 +645,9 @@
       .vp #viewport {
         position: absolute;
         inset: 0;
-        pointer-events: none;
+        /* Enable interactions on board/section */
+        pointer-events: auto;
         z-index: 5;
-        /* Keep overlay visible for rulers/guide lines */
         display: block;
       }
       /* Print mode: show overlay viewport */
@@ -633,7 +658,7 @@
         position: absolute;
         inset: 0;
       }
-      .vp #floor { width: 100%; height: 100%; display: block; }
+      .vp #floor { width: 100%; height: 100%; display: block; background: var(--soft); border-radius: 10px; }
       .vp #overlay { width: 100%; height: 100%; display: block; background: transparent !important; }
       .vp #labels { width: 100%; height: 100%; pointer-events: none; }
       /* Three.js viewport container */
@@ -642,6 +667,7 @@
         background: linear-gradient(180deg, rgba(248,250,252,0.95) 0%, rgba(255,255,255,1) 55%, rgba(241,245,249,0.95) 100%);
       }
       .vp[data-theme="dark"] #view3d { background: linear-gradient(180deg, rgba(10,14,24,0.95) 0%, rgba(12,19,34,1) 50%, rgba(8,12,20,0.95) 100%); }
+      .vp[data-theme="sepia"] #view3d { background: linear-gradient(180deg, rgba(249,245,233,0.95) 0%, rgba(255,250,240,1) 55%, rgba(244,237,222,0.95) 100%); }
       /* Minimal label style (non-scaling DOM labels) */
       .vp #labels .label {
         position: absolute;
@@ -684,6 +710,11 @@
       .vp[data-theme="light"] .hud {
         background: rgba(255, 255, 255, 0.7);
         border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .vp[data-theme="sepia"] .hud {
+        background: rgba(255, 250, 240, 0.82);
+        border: 1px solid #e3d4b7;
+        color: #2b2110;
       }
 
       .vp .item {
@@ -771,13 +802,9 @@
           var(--soft);
         border-radius: 8px;
       }
-      .vp .sec-gridline {
-        stroke: #26334e;
-        stroke-width: 0.2;
-      }
-      .vp[data-theme="light"] .sec-gridline {
-        stroke: #e8eef9;
-      }
+      .vp .sec-gridline { stroke: #26334e; stroke-width: 0.2; }
+      .vp[data-theme="light"] .sec-gridline { stroke: #e8eef9; }
+      .vp[data-theme="sepia"] .sec-gridline { stroke: #d9ccb1; }
 
       /* Underbar */
       .vp .underbar {
@@ -962,11 +989,8 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         white-space: pre-wrap;
       }
-      .vp[data-theme="light"] .bulk .out {
-        background: #fff;
-        color: #2b3b55;
-        border-color: #cfd8ef;
-      }
+      .vp[data-theme="light"] .bulk .out { background: #fff; color: #2b3b55; border-color: #cfd8ef; }
+      .vp[data-theme="sepia"] .bulk .out { background: #fffaf0; color: #2b2110; border-color: #e3d4b7; }
       .vp .note {
         color: var(--muted);
         font-size: 0.9rem;
@@ -1070,8 +1094,10 @@
       .vp .actions {
         display: flex;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* jedna linia */
+        align-items: center;
       }
+      .vp .actions .btn { padding: 8px 10px; white-space: nowrap; }
       .vp details {
         background: var(--soft);
         border: 1px solid var(--line);
@@ -2236,15 +2262,47 @@
           let lang = (localStorage.getItem('vp_lang') || 'pl');
           try { document.documentElement.setAttribute('lang', lang); } catch(_) {}
           try { mount.setAttribute('data-lang', lang); } catch(_) {}
-          // Theme init — follow system preference automatically
-          const prefersLight = matchMedia("(prefers-color-scheme: light)");
-          let theme = prefersLight.matches ? "light" : "dark";
+          // Theme init — AUTO (system) with optional MANUAL override
+          const prefersLight = (window.matchMedia && matchMedia('(prefers-color-scheme: light)')) || null;
+          const prefersDark  = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)')) || null;
+          const THEME_KEY = 'vp_theme_mode'; // 'auto' | 'light' | 'dark'
+          function getSystemTheme(){
+            try {
+              if (prefersDark && typeof prefersDark.matches === 'boolean' && prefersDark.matches) return 'dark';
+              if (prefersLight && typeof prefersLight.matches === 'boolean' && prefersLight.matches) return 'light';
+            } catch(_) {}
+            // Fallback: assume dark (nasza domyślna paleta)
+            return 'dark';
+          }
+          let themeMode = (localStorage.getItem(THEME_KEY) || 'auto');
+          let theme = themeMode === 'auto' ? getSystemTheme() : themeMode;
           mount.setAttribute("data-theme", theme);
-          // React to system theme changes
+          // React to system theme changes only in AUTO mode
           try {
-            prefersLight.addEventListener('change', (e) => {
-              const th = e.matches ? 'light' : 'dark';
+            const onMql = () => {
+              if ((localStorage.getItem(THEME_KEY) || 'auto') !== 'auto') return;
+              const th = getSystemTheme();
               setTheme(th);
+              try { renderAll(); try { overlayLabels.updateAll(); } catch(_){} } catch(_){}
+            };
+            // Reaguj zarówno na light, jak i dark (niektóre silniki sygnalizują jeden kanał pewniej)
+            const add = (mql) => {
+              if (!mql) return;
+              if (typeof mql.addEventListener === 'function') mql.addEventListener('change', onMql);
+              else if (typeof mql.addListener === 'function') mql.addListener(onMql);
+            };
+            add(prefersLight); add(prefersDark);
+            // Safety net: when wracamy do karty, zsynchronizuj w AUTO
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState !== 'visible') return;
+              if ((localStorage.getItem(THEME_KEY) || 'auto') !== 'auto') return;
+              onMql();
+            });
+            // Synchronizacja między kartami (zmiana trybu w innej karcie)
+            window.addEventListener('storage', (e) => {
+              if (e.key !== THEME_KEY) return;
+              const mode = e.newValue || 'auto';
+              if (mode === 'auto') setTheme(getSystemTheme()); else setTheme(mode);
               try { renderAll(); try { overlayLabels.updateAll(); } catch(_){} } catch(_){}
             });
           } catch(_) {}
@@ -2340,10 +2398,10 @@
             </div>
             <div class="theme" aria-label="${t("theme")}" style="margin-left:8px;">
               <div class="toggle" id="themeToggle" role="button" aria-pressed="${
-                theme === "light"
+                theme !== "dark"
               }" tabindex="0" title="${t('toggle_theme_title')}">
                 <div class="knob" id="themeKnob">${
-                  theme === "light" ? "☀" : "☾"
+                  theme === "dark" ? "☾" : (theme === "sepia" ? "📖" : "☀")
                 }</div>
               </div>
             </div>
@@ -2485,8 +2543,6 @@
                   <button class="btn secondary tiny" data-act="stack-+" title="${t("stacking_plus")}">＋</button>
                   <button class="btn secondary tiny" data-act="stack--" title="${t("stacking_minus")}">−</button>
                   <button class="btn ghost" data-act="delete" title="${t("deleteSel")}">${t("deleteSel")}</button>
-                  
-                  <button class="btn mobile-only" id="pdfExport">🖨️ ${t("export_pdf")}</button>
                 </div>
               </div>
             </div>
@@ -2543,6 +2599,7 @@
                 <button class="btn secondary" data-act="share">🔗 ${t(
                   "share"
                 )}</button>
+                <button class="btn" id="pdfExport">🖨️ ${t("export_pdf")}</button>
               </div>
             </aside>
           </div>
@@ -2552,7 +2609,7 @@
         <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
       `;
 
-      // Theme toggle
+      // Theme toggle (AUTO + MANUAL)
       const themeToggle = mount.querySelector("#themeToggle");
       const themeKnob = mount.querySelector("#themeKnob");
       // Button hover/press JS: add press class for crisper feel on pointerdown
@@ -2567,17 +2624,45 @@
       })();
           function setTheme(th) {
             mount.setAttribute("data-theme", th);
-            try { themeKnob.textContent = th === "light" ? "☀" : "☾"; } catch(_){}
-            try { themeToggle?.setAttribute('aria-pressed', String(th === 'light')); } catch(_){}
+            try {
+              themeKnob.textContent = (th === 'dark') ? '☾' : (th === 'sepia' ? '📖' : '☀');
+            } catch(_){}
+            try { themeToggle?.setAttribute('aria-pressed', String(th !== 'dark')); } catch(_){}
           }
-          // Disable manual theme toggle; theme follows system preference
+          // Enable MANUAL toggle: click = jasny/ciemny (zapis), Shift+klik = AUTO
           try {
-            themeToggle?.setAttribute('aria-disabled','true');
-            themeToggle?.setAttribute('title', t('toggle_theme_title') || 'Motyw ustawia się automatycznie wg systemu');
-            themeToggle?.style?.setProperty('pointer-events','none');
-            themeToggle?.addEventListener('click', (e) => { e.preventDefault(); });
+            themeToggle?.removeAttribute('aria-disabled');
+            themeToggle?.style?.removeProperty('pointer-events');
+            const baseTitle = t('toggle_theme_title') || 'Przełącz motyw';
+            function updateToggleTitle(){
+              const mode = (localStorage.getItem(THEME_KEY) || 'auto');
+              const cur = mount.getAttribute('data-theme') || 'dark';
+              const tip = ' (klik: jasny/sepia/ciemny; Shift+klik: auto)';
+              themeToggle?.setAttribute('title', baseTitle + (mode==='auto' ? ' — AUTO' : ' — MANUAL') + ` [${cur}]` + tip);
+            }
+            updateToggleTitle();
+            themeToggle?.addEventListener('click', (e) => {
+              if (e.shiftKey) {
+                localStorage.setItem(THEME_KEY, 'auto');
+                setTheme(prefersLight.matches ? 'light' : 'dark');
+                updateToggleTitle();
+                return;
+              }
+              // Manual cycle: light -> sepia -> dark -> light
+              const now = mount.getAttribute('data-theme') || 'dark';
+              const next = (now === 'light') ? 'sepia' : (now === 'sepia' ? 'dark' : 'light');
+              localStorage.setItem(THEME_KEY, next);
+              setTheme(next);
+              updateToggleTitle();
+            });
             themeToggle?.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); themeToggle?.click(); }
+              if (e.key.toLowerCase?.() === 'a') { // A -> AUTO
+                e.preventDefault();
+                localStorage.setItem(THEME_KEY, 'auto');
+                setTheme(prefersLight.matches ? 'light' : 'dark');
+                updateToggleTitle();
+              }
             });
           } catch(_) {}
 
@@ -2646,7 +2731,6 @@
                 const v3 = mount.querySelector('#view3D'); if (v3) v3.textContent = '🎥 ' + t('view_3d');
                 const sk = mount.querySelector('#sketch3D'); if (sk) { sk.textContent = '✏️ ' + t('sketch_mode'); sk.setAttribute('title', t('sketch_mode_title')); }
                 const rl = mount.querySelector('[data-act=\"camRearLeft\"]'); if (rl) rl.textContent = t('view_rear_left') || '3/4 rear-left';
-                const sk = mount.querySelector('#sketch3D'); if (sk) { sk.textContent = '✏️ ' + t('sketch_mode'); sk.setAttribute('title', t('sketch_mode_title')); }
                 const m = [ ['camTop','view_top'], ['camSide','view_side'], ['camRear','view_rear'], ['camPersp','view_perspective'], ['camOverview','overview'], ['sectionToggle','section'] ];
                 m.forEach(([act,key])=>{ const el = mount.querySelector(`[data-act=\"${act}\"]`); if (el) el.textContent = t(key); });
                 const l1 = mount.querySelector('[data-act=\"layer1\"]'); if (l1) l1.textContent = `${t('layer')} 1`;
@@ -2676,7 +2760,7 @@
               try {
                 const tb = mount.querySelector('#toolbar'); if (tb) tb.setAttribute('aria-label', t('tools_aria'));
                 const lt = mount.querySelector('#lang-trigger'); if (lt) lt.setAttribute('aria-label', t('choose_language_aria'));
-                const th = mount.querySelector('#themeToggle'); if (th) th.setAttribute('title', t('toggle_theme_title'));
+                const th = mount.querySelector('#themeToggle'); if (th) { const mode = (localStorage.getItem('vp_theme_mode')||'auto'); const cur = mount.getAttribute('data-theme')||'dark'; th.setAttribute('title', (t('toggle_theme_title')||'Przełącz motyw') + (mode==='auto'?' — AUTO':' — MANUAL') + ` [${cur}]` + ' (klik: jasny/sepia/ciemny; Shift+klik: auto)'); }
                 const sh = mount.querySelector('#toggleSheet'); if (sh) { sh.setAttribute('title', t('panels_title')); sh.firstChild && (sh.firstChild.nodeType===3) ? (sh.firstChild.nodeValue = t('panels_title') + ' ▴▾') : (sh.textContent = t('panels_title') + ' ▴▾'); }
                 const hd = mount.querySelector('.expander-head'); if (hd) hd.setAttribute('title', t('open_close_title'));
                 const ha = mount.querySelector('.head-actions'); if (ha) ha.setAttribute('aria-label', t('selected_actions_aria'));
@@ -3032,7 +3116,7 @@
             const h = Math.max(1, svg.clientHeight || 0);
             const band = 28;
             const theme = mount.getAttribute('data-theme') || 'dark';
-            const fill = theme === 'light' ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.25)';
+            const fill = theme !== 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.25)';
             gx.innerHTML = '';
             gy.innerHTML = '';
             const rx = document.createElementNS('http://www.w3.org/2000/svg','rect');
@@ -3763,7 +3847,7 @@
             }
             const hue = (hash + 360) % 360;
             const sat = 62;
-            const light = mount.getAttribute("data-theme") === "light" ? 45 : 40;
+            const light = mount.getAttribute("data-theme") === "dark" ? 40 : 45;
             return `hsl(${hue}, ${sat}%, ${light}%)`;
           }
 
@@ -4362,7 +4446,7 @@
             // Grid (floor)
             const gridStep = Math.max(20, v.grid_cm * 2);
             ctx.lineWidth = 1;
-            ctx.strokeStyle = mount.getAttribute("data-theme") === "light" ? "#e6ecfb" : "#26334e";
+            ctx.strokeStyle = mount.getAttribute("data-theme") === "dark" ? "#26334e" : "#e6ecfb";
             ctx.globalAlpha = 0.7;
             for (let x = 0; x <= v.inner_cm.L; x += gridStep) {
               const a = projectIso(x, 0, 0, scale, ox, oy);
@@ -4401,7 +4485,7 @@
               Cp: projectIso(v.inner_cm.L, v.inner_cm.W, v.inner_cm.H, scale, ox, oy),
               Dp: projectIso(0, v.inner_cm.W, v.inner_cm.H, scale, ox, oy),
             };
-            const hullLine = mount.getAttribute("data-theme") === "light" ? "#89a3ff" : "#3a4d77";
+            const hullLine = mount.getAttribute("data-theme") === "dark" ? "#3a4d77" : "#89a3ff";
             line3(hullPts.A, hullPts.B, hullLine);
             line3(hullPts.B, hullPts.C, hullLine);
             line3(hullPts.C, hullPts.D, hullLine);
