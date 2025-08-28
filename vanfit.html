@@ -2236,13 +2236,16 @@
           let lang = (localStorage.getItem('vp_lang') || 'pl');
           try { document.documentElement.setAttribute('lang', lang); } catch(_) {}
           try { mount.setAttribute('data-lang', lang); } catch(_) {}
-          // Theme init — follow system preference automatically
+          // Theme init — AUTO (system) with optional MANUAL override
           const prefersLight = matchMedia("(prefers-color-scheme: light)");
-          let theme = prefersLight.matches ? "light" : "dark";
+          const THEME_KEY = 'vp_theme_mode'; // 'auto' | 'light' | 'dark'
+          let themeMode = (localStorage.getItem(THEME_KEY) || 'auto');
+          let theme = themeMode === 'auto' ? (prefersLight.matches ? 'light' : 'dark') : themeMode;
           mount.setAttribute("data-theme", theme);
-          // React to system theme changes
+          // React to system theme changes only in AUTO mode
           try {
             prefersLight.addEventListener('change', (e) => {
+              if ((localStorage.getItem(THEME_KEY) || 'auto') !== 'auto') return;
               const th = e.matches ? 'light' : 'dark';
               setTheme(th);
               try { renderAll(); try { overlayLabels.updateAll(); } catch(_){} } catch(_){}
@@ -2552,7 +2555,7 @@
         <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
       `;
 
-      // Theme toggle
+      // Theme toggle (AUTO + MANUAL)
       const themeToggle = mount.querySelector("#themeToggle");
       const themeKnob = mount.querySelector("#themeKnob");
       // Button hover/press JS: add press class for crisper feel on pointerdown
@@ -2570,14 +2573,38 @@
             try { themeKnob.textContent = th === "light" ? "☀" : "☾"; } catch(_){}
             try { themeToggle?.setAttribute('aria-pressed', String(th === 'light')); } catch(_){}
           }
-          // Disable manual theme toggle; theme follows system preference
+          // Enable MANUAL toggle: click = jasny/ciemny (zapis), Shift+klik = AUTO
           try {
-            themeToggle?.setAttribute('aria-disabled','true');
-            themeToggle?.setAttribute('title', t('toggle_theme_title') || 'Motyw ustawia się automatycznie wg systemu');
-            themeToggle?.style?.setProperty('pointer-events','none');
-            themeToggle?.addEventListener('click', (e) => { e.preventDefault(); });
+            themeToggle?.removeAttribute('aria-disabled');
+            themeToggle?.style?.removeProperty('pointer-events');
+            const baseTitle = t('toggle_theme_title') || 'Przełącz motyw';
+            function updateToggleTitle(){
+              const mode = (localStorage.getItem(THEME_KEY) || 'auto');
+              const tip = ' (klik: jasny/ciemny; Shift+klik: auto)';
+              themeToggle?.setAttribute('title', baseTitle + (mode==='auto' ? ' — AUTO' : ' — MANUAL') + tip);
+            }
+            updateToggleTitle();
+            themeToggle?.addEventListener('click', (e) => {
+              if (e.shiftKey) {
+                localStorage.setItem(THEME_KEY, 'auto');
+                setTheme(prefersLight.matches ? 'light' : 'dark');
+                updateToggleTitle();
+                return;
+              }
+              // Manual toggle
+              const cur = mount.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+              localStorage.setItem(THEME_KEY, cur);
+              setTheme(cur);
+              updateToggleTitle();
+            });
             themeToggle?.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); themeToggle?.click(); }
+              if (e.key.toLowerCase?.() === 'a') { // A -> AUTO
+                e.preventDefault();
+                localStorage.setItem(THEME_KEY, 'auto');
+                setTheme(prefersLight.matches ? 'light' : 'dark');
+                updateToggleTitle();
+              }
             });
           } catch(_) {}
 
