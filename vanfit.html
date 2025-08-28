@@ -2244,11 +2244,24 @@
           mount.setAttribute("data-theme", theme);
           // React to system theme changes only in AUTO mode
           try {
-            prefersLight.addEventListener('change', (e) => {
+            const onMql = (e) => {
               if ((localStorage.getItem(THEME_KEY) || 'auto') !== 'auto') return;
-              const th = e.matches ? 'light' : 'dark';
+              const isLight = (e && typeof e.matches === 'boolean') ? e.matches : prefersLight.matches;
+              const th = isLight ? 'light' : 'dark';
               setTheme(th);
               try { renderAll(); try { overlayLabels.updateAll(); } catch(_){} } catch(_){}
+            };
+            if (typeof prefersLight.addEventListener === 'function') {
+              prefersLight.addEventListener('change', onMql);
+            } else if (typeof prefersLight.addListener === 'function') {
+              // Safari/older browsers
+              prefersLight.addListener(onMql);
+            }
+            // Safety net: when wracamy do karty, zsynchronizuj w AUTO
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState !== 'visible') return;
+              if ((localStorage.getItem(THEME_KEY) || 'auto') !== 'auto') return;
+              onMql();
             });
           } catch(_) {}
 
