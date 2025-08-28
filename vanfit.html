@@ -112,6 +112,20 @@
         --soft: #f0f3fa;
       }
 
+      /* Sepia / Reading mode (ciepły, żółtawy) */
+      .vp[data-theme="sepia"] {
+        --bg: #f6f1e3;       /* kremowe tło */
+        --ink: #2b2110;      /* brązowy tusz */
+        --muted: #6b5b45;
+        --accent: #c36a00;   /* przygaszony pomarańcz */
+        --accent-ink: #fff;
+        --ok: #0f9b5f;
+        --bad: #c0392b;
+        --line: #eadfc8;     /* delikatne linie */
+        --card: #fffaf0;     /* jaśniejsze karty */
+        --soft: #f2eadb;     /* miękki panel */
+      }
+
       /* ===================== BASE ===================== */
       .vp * {
         box-sizing: border-box;
@@ -2372,10 +2386,10 @@
             </div>
             <div class="theme" aria-label="${t("theme")}" style="margin-left:8px;">
               <div class="toggle" id="themeToggle" role="button" aria-pressed="${
-                theme === "light"
+                theme !== "dark"
               }" tabindex="0" title="${t('toggle_theme_title')}">
                 <div class="knob" id="themeKnob">${
-                  theme === "light" ? "☀" : "☾"
+                  theme === "dark" ? "☾" : (theme === "sepia" ? "📖" : "☀")
                 }</div>
               </div>
             </div>
@@ -2599,8 +2613,10 @@
       })();
           function setTheme(th) {
             mount.setAttribute("data-theme", th);
-            try { themeKnob.textContent = th === "light" ? "☀" : "☾"; } catch(_){}
-            try { themeToggle?.setAttribute('aria-pressed', String(th === 'light')); } catch(_){}
+            try {
+              themeKnob.textContent = (th === 'dark') ? '☾' : (th === 'sepia' ? '📖' : '☀');
+            } catch(_){}
+            try { themeToggle?.setAttribute('aria-pressed', String(th !== 'dark')); } catch(_){}
           }
           // Enable MANUAL toggle: click = jasny/ciemny (zapis), Shift+klik = AUTO
           try {
@@ -2609,8 +2625,9 @@
             const baseTitle = t('toggle_theme_title') || 'Przełącz motyw';
             function updateToggleTitle(){
               const mode = (localStorage.getItem(THEME_KEY) || 'auto');
-              const tip = ' (klik: jasny/ciemny; Shift+klik: auto)';
-              themeToggle?.setAttribute('title', baseTitle + (mode==='auto' ? ' — AUTO' : ' — MANUAL') + tip);
+              const cur = mount.getAttribute('data-theme') || 'dark';
+              const tip = ' (klik: jasny/sepia/ciemny; Shift+klik: auto)';
+              themeToggle?.setAttribute('title', baseTitle + (mode==='auto' ? ' — AUTO' : ' — MANUAL') + ` [${cur}]` + tip);
             }
             updateToggleTitle();
             themeToggle?.addEventListener('click', (e) => {
@@ -2620,10 +2637,11 @@
                 updateToggleTitle();
                 return;
               }
-              // Manual toggle
-              const cur = mount.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-              localStorage.setItem(THEME_KEY, cur);
-              setTheme(cur);
+              // Manual cycle: light -> sepia -> dark -> light
+              const now = mount.getAttribute('data-theme') || 'dark';
+              const next = (now === 'light') ? 'sepia' : (now === 'sepia' ? 'dark' : 'light');
+              localStorage.setItem(THEME_KEY, next);
+              setTheme(next);
               updateToggleTitle();
             });
             themeToggle?.addEventListener('keydown', (e) => {
@@ -2731,7 +2749,7 @@
               try {
                 const tb = mount.querySelector('#toolbar'); if (tb) tb.setAttribute('aria-label', t('tools_aria'));
                 const lt = mount.querySelector('#lang-trigger'); if (lt) lt.setAttribute('aria-label', t('choose_language_aria'));
-                const th = mount.querySelector('#themeToggle'); if (th) { const mode = (localStorage.getItem('vp_theme_mode')||'auto'); th.setAttribute('title', (t('toggle_theme_title')||'Przełącz motyw') + (mode==='auto'?' — AUTO':' — MANUAL') + ' (klik: jasny/ciemny; Shift+klik: auto)'); }
+                const th = mount.querySelector('#themeToggle'); if (th) { const mode = (localStorage.getItem('vp_theme_mode')||'auto'); const cur = mount.getAttribute('data-theme')||'dark'; th.setAttribute('title', (t('toggle_theme_title')||'Przełącz motyw') + (mode==='auto'?' — AUTO':' — MANUAL') + ` [${cur}]` + ' (klik: jasny/sepia/ciemny; Shift+klik: auto)'); }
                 const sh = mount.querySelector('#toggleSheet'); if (sh) { sh.setAttribute('title', t('panels_title')); sh.firstChild && (sh.firstChild.nodeType===3) ? (sh.firstChild.nodeValue = t('panels_title') + ' ▴▾') : (sh.textContent = t('panels_title') + ' ▴▾'); }
                 const hd = mount.querySelector('.expander-head'); if (hd) hd.setAttribute('title', t('open_close_title'));
                 const ha = mount.querySelector('.head-actions'); if (ha) ha.setAttribute('aria-label', t('selected_actions_aria'));
@@ -3087,7 +3105,7 @@
             const h = Math.max(1, svg.clientHeight || 0);
             const band = 28;
             const theme = mount.getAttribute('data-theme') || 'dark';
-            const fill = theme === 'light' ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.25)';
+            const fill = theme !== 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.25)';
             gx.innerHTML = '';
             gy.innerHTML = '';
             const rx = document.createElementNS('http://www.w3.org/2000/svg','rect');
@@ -3818,7 +3836,7 @@
             }
             const hue = (hash + 360) % 360;
             const sat = 62;
-            const light = mount.getAttribute("data-theme") === "light" ? 45 : 40;
+            const light = mount.getAttribute("data-theme") === "dark" ? 40 : 45;
             return `hsl(${hue}, ${sat}%, ${light}%)`;
           }
 
@@ -4417,7 +4435,7 @@
             // Grid (floor)
             const gridStep = Math.max(20, v.grid_cm * 2);
             ctx.lineWidth = 1;
-            ctx.strokeStyle = mount.getAttribute("data-theme") === "light" ? "#e6ecfb" : "#26334e";
+            ctx.strokeStyle = mount.getAttribute("data-theme") === "dark" ? "#26334e" : "#e6ecfb";
             ctx.globalAlpha = 0.7;
             for (let x = 0; x <= v.inner_cm.L; x += gridStep) {
               const a = projectIso(x, 0, 0, scale, ox, oy);
@@ -4456,7 +4474,7 @@
               Cp: projectIso(v.inner_cm.L, v.inner_cm.W, v.inner_cm.H, scale, ox, oy),
               Dp: projectIso(0, v.inner_cm.W, v.inner_cm.H, scale, ox, oy),
             };
-            const hullLine = mount.getAttribute("data-theme") === "light" ? "#89a3ff" : "#3a4d77";
+            const hullLine = mount.getAttribute("data-theme") === "dark" ? "#3a4d77" : "#89a3ff";
             line3(hullPts.A, hullPts.B, hullLine);
             line3(hullPts.B, hullPts.C, hullLine);
             line3(hullPts.C, hullPts.D, hullLine);
