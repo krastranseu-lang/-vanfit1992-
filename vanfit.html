@@ -2702,7 +2702,7 @@
               try {
                 const tb = mount.querySelector('#toolbar'); if (tb) tb.setAttribute('aria-label', t('tools_aria'));
                 const lt = mount.querySelector('#lang-trigger'); if (lt) lt.setAttribute('aria-label', t('choose_language_aria'));
-                const th = mount.querySelector('#themeToggle'); if (th) th.setAttribute('title', t('toggle_theme_title'));
+                const th = mount.querySelector('#themeToggle'); if (th) { const mode = (localStorage.getItem('vp_theme_mode')||'auto'); th.setAttribute('title', (t('toggle_theme_title')||'Przełącz motyw') + (mode==='auto'?' — AUTO':' — MANUAL') + ' (klik: jasny/ciemny; Shift+klik: auto)'); }
                 const sh = mount.querySelector('#toggleSheet'); if (sh) { sh.setAttribute('title', t('panels_title')); sh.firstChild && (sh.firstChild.nodeType===3) ? (sh.firstChild.nodeValue = t('panels_title') + ' ▴▾') : (sh.textContent = t('panels_title') + ' ▴▾'); }
                 const hd = mount.querySelector('.expander-head'); if (hd) hd.setAttribute('title', t('open_close_title'));
                 const ha = mount.querySelector('.head-actions'); if (ha) ha.setAttribute('aria-label', t('selected_actions_aria'));
