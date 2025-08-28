@@ -645,8 +645,8 @@
       .vp #viewport {
         position: absolute;
         inset: 0;
-        /* Enable interactions on board/section */
-        pointer-events: auto;
+        /* Interakcje odbywają się głównie na SVG board; viewport przepuszcza */
+        pointer-events: none;
         z-index: 5;
         display: block;
       }
@@ -658,7 +658,7 @@
         position: absolute;
         inset: 0;
       }
-      .vp #floor { width: 100%; height: 100%; display: block; background: var(--soft); border-radius: 10px; }
+      .vp #floor { width: 100%; height: 100%; display: block; background: transparent; }
       .vp #overlay { width: 100%; height: 100%; display: block; background: transparent !important; }
       .vp #labels { width: 100%; height: 100%; pointer-events: none; }
       /* Three.js viewport container */
